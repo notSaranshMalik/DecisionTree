@@ -17,6 +17,7 @@ tree.construct_tree(X_train, y_train)
 ### Optional construct_tree parameters
 1) `depth` for the maximum tree depth (default 10)
 2) `step_size` for the number of finite intervals per feature (default 100)
+3) `regress` for if the construction should be for regression instead of classification (default False)
 
 ##  Predicting classification for a data point
 ```

@@ -14,12 +14,13 @@ class decisionTreeClassifier:
         self.step_sizes = None
 
     def construct_tree(self, test_points: np.ndarray, test_class: np.ndarray,
-                       depth: int = 10, step_size: int = 100):
+                       depth: int = 10, step_size: int = 100, regress=False):
         '''
         Main initialisation method for this decision tree classifier. Takes the 
         input test_points matrix and constructs the tree based on that, up to
         the depth of depth. Step size is the parameter for the intervals in
-        the region
+        the region. 
+        Regress doesn't check for modal value on a leaf, rather average
         '''
 
         # Variable setup
@@ -34,17 +35,20 @@ class decisionTreeClassifier:
         self.step_sizes = (root_stats[1] - root_stats[0]) / step_size
         
         # Create the tree
-        self.calculateBestSplit(root_test_points, root_stats, 
-                                       depth)
+        self._calculateBestSplit(root_test_points, root_stats, 
+                                       depth, regress=regress)
 
-    def calculateBestSplit(self, test_points: np.ndarray, stats: np.ndarray,
-                           max_d: int, depth: int = 0, cur: Node = None):
+    def _calculateBestSplit(self, test_points: np.ndarray, stats: np.ndarray,
+                           max_d: int, depth: int = 0, cur: Node = None,
+                           regress=False):
         '''
         Calculate the best way to split the test points at the current node
         to maximise information gain, given a set of test points in a range
         given by stats. Max_d is the maximum tree depth, while depth is the 
         current depth of the tree, at 0 by default when it's called for the
         root. Cur is the current node being worked on
+        Regress is used to look for average, rather than modal values on
+        leaves.
         '''
 
         # Setup for root node
@@ -58,8 +62,12 @@ class decisionTreeClassifier:
             cur.setLeaf(values[0])
             return
         if (depth == max_d):
-            ind = np.argmax(counts)
-            cur.setLeaf(values[ind])
+            if regress:
+                avg = np.mean(self.test_class[test_points])
+                cur.setLeaf(avg)
+            else:
+                ind = np.argmax(counts)
+                cur.setLeaf(values[ind])
             return
 
         # Setup variables to keep track of maximum
@@ -105,10 +113,12 @@ class decisionTreeClassifier:
         # Recurse onto left and right nodes
         stats_l = np.array(stats, copy=True)
         stats_l[1, arg_max_gain[0]] = arg_max_gain[1]
-        self.calculateBestSplit(max_mask[0], stats_l, max_d, depth+1, node_l)
+        self._calculateBestSplit(max_mask[0], stats_l, max_d, depth+1, 
+                                 node_l, regress)
         stats_r = np.array(stats, copy=True)
         stats_r[0, arg_max_gain[0]] = arg_max_gain[1]
-        self.calculateBestSplit(max_mask[1], stats_r, max_d, depth+1, node_r)
+        self._calculateBestSplit(max_mask[1], stats_r, max_d, depth+1, 
+                                 node_r, regress)
 
     def classify(self, data_point: np.ndarray) -> int:
         '''
@@ -133,11 +143,28 @@ class decisionTreeClassifier:
                 cur = cur.getRightNode()
 
     def classify_many(self, data: np.ndarray) -> np.ndarray:
+        '''
+        Classifies a Numpy matrix of input data points, returning a Numpy array
+        of the output points
+        '''
         y_hat = np.zeros(data.shape[0])
         for point in range(data.shape[0]):
             y_hat[point] = self.classify(data[point])
         return y_hat
     
     def check_accuracy(self, y_hat: np.ndarray, y: np.ndarray):
+        '''
+        Checks the accuracy for a classification based model by returning 
+        the rate of correctly classified over total test points
+        '''
         return round((y == y_hat).sum() / y.size, 2)
+    
+    def check_closeness(self, y_hat: np.ndarray, y: np.ndarray):
+        '''
+        Checks the accuracy for a regression based model by returning 
+        the RMSE value
+        '''
+        error = y - y_hat
+        RMSE = np.sqrt((error @ error) / error.size)
+        return round(RMSE, 2)
                 
