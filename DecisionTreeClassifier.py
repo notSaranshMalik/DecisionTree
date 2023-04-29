@@ -131,4 +131,13 @@ class decisionTreeClassifier:
                 cur = cur.getLeftNode()
             else:
                 cur = cur.getRightNode()
+
+    def classify_many(self, data: np.ndarray) -> np.ndarray:
+        y_hat = np.zeros(data.shape[0])
+        for point in range(data.shape[0]):
+            y_hat[point] = self.classify(data[point])
+        return y_hat
+    
+    def check_accuracy(self, y_hat: np.ndarray, y: np.ndarray):
+        return round((y == y_hat).sum() / y.size, 2)
                 
