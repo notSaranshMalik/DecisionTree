@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from DecisionTreeClassifier import decisionTreeClassifier
 
-def testDepths(X: np.ndarray, y: np.ndarray):
+def testDepths(X: np.ndarray, y: np.ndarray, step: int):
     
     # Load up the basic iris data_set
     X_train, X_test, y_train, y_test = train_test_split(
@@ -14,7 +14,7 @@ def testDepths(X: np.ndarray, y: np.ndarray):
 
         # Construct tree
         tree = decisionTreeClassifier()
-        tree.construct_tree(X_train, y_train, depth)
+        tree.construct_tree(X_train, y_train, depth, step_size = step)
 
         # Predict values for all inputs
         y_hat = tree.classify_many(X_test)
@@ -23,13 +23,32 @@ def testDepths(X: np.ndarray, y: np.ndarray):
         print(f"Depth {depth}")
         print(f"Accuracy: {tree.check_accuracy(y_test, y_hat)}")
 
+def testOne(X: np.ndarray, y: np.ndarray, depth: int, step: int):
+    
+    # Load up the basic iris data_set
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.5, random_state=42)
+
+    # Construct tree
+    tree = decisionTreeClassifier()
+    tree.construct_tree(X_train, y_train, depth, step_size = step)
+
+    # Predict values for all inputs
+    y_hat = tree.classify_many(X_test)
+
+    # Check for accuracy and depth
+    print(f"Accuracy: {tree.check_accuracy(y_test, y_hat)}")
+
 if __name__ == "__main__":
 
     # Classification based tests
 
-    (X, y) = load_iris(return_X_y = True)
-    testDepths(X, y)
+    # (X, y) = load_iris(return_X_y = True)
+    # testDepths(X, y)
 
-    (X, y) = load_wine(return_X_y = True)
-    testDepths(X, y)
+    # (X, y) = load_wine(return_X_y = True)
+    # testDepths(X, y)
+
+    (X, y) = load_digits(return_X_y = True)
+    testOne(X, y, 7, 1)
     

@@ -16,7 +16,7 @@ tree.construct_tree(X_train, y_train)
 
 ### Optional construct_tree parameters
 1) `depth` for the maximum tree depth (default 10)
-2) `step_size` for the number of finite intervals per feature (default 100)
+2) `step_size` for a given discrete step size
 3) `regress` for if the construction should be for regression instead of classification (default False)
 
 ##  Predicting classification for a data point
@@ -39,7 +39,10 @@ accuracy_rate = tree.check_accuracy(y_test, predictions)
 ```
 - y_test is a Numpy array of size m
 
-## Accuracy on sklearn datasets
+## Accuracy on basic datasets (sklearn)
 1) 96% accuracy on iris dataset with depth 3
 2) 91% accuracy on wine dataset with depth 3
-3) 60 RMSE on diabetes dataset with depth 3
+3) 58 RMSE on diabetes dataset with depth 3
+
+## Accuracy on OCR datasets (sklearn)
+84% accuracy on digits dataset with depth 7

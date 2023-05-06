@@ -14,14 +14,15 @@ class decisionTreeClassifier:
         self.step_sizes = None
 
     def construct_tree(self, test_points: np.ndarray, test_class: np.ndarray,
-                       depth: int = 10, step_size: int = 100, regress=False):
+                       depth: int = 10, regress = False, step_size = None):
         '''
         Main initialisation method for this decision tree classifier. Takes the 
         input test_points matrix and constructs the tree based on that, up to
         the depth of depth. Step size is the parameter for the intervals in
         the region. 
         Regress doesn't check for modal value on a leaf, rather average. It 
-        also calculates MSE (CART style) instead of entropy as a loss function
+        also calculates MSE (CART style) instead of entropy as a loss function.
+        step_size is an exact step size to use for discrete inputs
         '''
 
         # Variable setup
@@ -33,7 +34,11 @@ class decisionTreeClassifier:
         self.root = Node()
         self.test_points = test_points
         self.test_class = test_class
-        self.step_sizes = (root_stats[1] - root_stats[0]) / step_size
+        if not step_size:
+            self.step_sizes = (root_stats[1] - root_stats[0]) / 100
+        else:
+            self.step_sizes = np.full(root_stats.shape[1], 
+                                      fill_value = step_size)
         
         # Create the tree
         self._calculateBestSplit(root_test_points, root_stats, 
@@ -82,7 +87,7 @@ class decisionTreeClassifier:
             # Iterate over every finite interval in that feature
             min, max = stats[0, feature], stats[1, feature]
             step_size = self.step_sizes[feature]
-            for step in np.arange(min+step_size, max, step_size):
+            for step in np.arange(min, max, step_size):
 
                 # Make the divisions
                 mask_l = (self.test_points[:, feature] <= step) & test_points
