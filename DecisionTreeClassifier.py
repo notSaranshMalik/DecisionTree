@@ -20,7 +20,8 @@ class decisionTreeClassifier:
         input test_points matrix and constructs the tree based on that, up to
         the depth of depth. Step size is the parameter for the intervals in
         the region. 
-        Regress doesn't check for modal value on a leaf, rather average
+        Regress doesn't check for modal value on a leaf, rather average. It 
+        also calculates MSE (CART style) instead of entropy as a loss function
         '''
 
         # Variable setup
@@ -46,9 +47,9 @@ class decisionTreeClassifier:
         to maximise information gain, given a set of test points in a range
         given by stats. Max_d is the maximum tree depth, while depth is the 
         current depth of the tree, at 0 by default when it's called for the
-        root. Cur is the current node being worked on
-        Regress is used to look for average, rather than modal values on
-        leaves.
+        root. Cur is the current node being worked on.
+        Regress doesn't check for modal value on a leaf, rather average. It 
+        also calculates MSE (CART style) instead of entropy as a loss function
         '''
 
         # Setup for root node
@@ -63,7 +64,7 @@ class decisionTreeClassifier:
             return
         if (depth == max_d):
             if regress:
-                avg = np.mean(self.test_class[test_points])
+                avg = np.median(self.test_class[test_points])
                 cur.setLeaf(avg)
             else:
                 ind = np.argmax(counts)
@@ -89,16 +90,27 @@ class decisionTreeClassifier:
                 split_l = self.test_class[mask_l]
                 split_r = self.test_class[mask_r]
 
-                # Count occurances
-                dict_l = dict(zip(*np.unique(split_l, return_counts=True)))
-                dict_r = dict(zip(*np.unique(split_r, return_counts=True)))
+                if regress:
 
-                # Calculate if this branch increases information gain
-                gain = calculateInformationGain(dict_l, dict_r)
-                if gain > max_gain:
-                    max_gain = gain
-                    arg_max_gain = (feature, step)
-                    max_mask = (mask_l, mask_r)
+                    # Check if this is an improvement
+                    gain = cartRegress(split_l, split_r)
+                    if gain > max_gain:
+                        max_gain = gain
+                        arg_max_gain = (feature, step)
+                        max_mask = (mask_l, mask_r)
+
+                else:
+
+                    # Count occurances
+                    dict_l = dict(zip(*np.unique(split_l, return_counts=True)))
+                    dict_r = dict(zip(*np.unique(split_r, return_counts=True)))
+
+                    # Calculate if this branch increases information gain
+                    gain = calculateInformationGain(dict_l, dict_r)
+                    if gain > max_gain:
+                        max_gain = gain
+                        arg_max_gain = (feature, step)
+                        max_mask = (mask_l, mask_r)
 
         # Modify the current node data
         split_func = lambda x: x[arg_max_gain[0]] <= arg_max_gain[1]

@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 def calculateEntropy(d: dict, rounded = True) -> float:
     '''
@@ -25,8 +26,7 @@ def calculateEntropy(d: dict, rounded = True) -> float:
 
 def calculateInformationGain(d1: dict, d2: dict) -> float:
     '''
-    Calculate the Information gain given a specific boundary split
-    Given two sections, d1 and d2, this function calculates gain
+    Calculate the Information gain given a specific boundary split.
     '''
 
     # Calculate the individual entropies for the sections
@@ -53,3 +53,22 @@ def calculateInformationGain(d1: dict, d2: dict) -> float:
     # Calculate and return the information gain
     original_entropy = calculateEntropy(full_dict, rounded = True)
     return round(original_entropy - total_entropy, 3)
+
+def cartRegress(a1: np.ndarray, a2: np.ndarray):
+    '''
+    Calculate information gain through total squared error (SE) based on 
+    difference between original SE and sum of new SE
+    '''
+
+    # Check for items
+    if (a1.size == 0 or a2.size == 0):
+        return 0
+
+    # Calculate full set
+    a_total = np.append(a1, a2)
+
+    # Calculate and return gain
+    SE_total = a_total - np.median(a_total)
+    SE_1 = a1 - np.median(a1)
+    SE_2 = a2 - np.median(a2)
+    return SE_total @ SE_total - SE_1 @ SE_1 - SE_2 @ SE_2

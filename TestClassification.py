@@ -26,6 +26,7 @@ def testDepths(X: np.ndarray, y: np.ndarray):
 if __name__ == "__main__":
 
     # Classification based tests
+
     (X, y) = load_iris(return_X_y = True)
     testDepths(X, y)
 
