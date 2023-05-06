@@ -39,6 +39,7 @@ accuracy_rate = tree.check_accuracy(y_test, predictions)
 ```
 - y_test is a Numpy array of size m
 
-## Accuracy
+## Accuracy on sklearn datasets
 1) 96% accuracy on iris dataset with depth 3
 2) 91% accuracy on wine dataset with depth 3
+3) 60 RMSE on diabetes dataset with depth 3
