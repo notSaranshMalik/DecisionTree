@@ -51,7 +51,7 @@ def calculateInformationGain(d1: dict, d2: dict) -> float:
         full_dict[x] = d1.get(x, 0) + d2.get(x, 0)
 
     # Calculate and return the information gain
-    original_entropy = calculateEntropy(full_dict, rounded = True)
+    original_entropy = calculateEntropy(full_dict, rounded = False)
     return round(original_entropy - total_entropy, 3)
 
 def cartRegress(a1: np.ndarray, a2: np.ndarray):
